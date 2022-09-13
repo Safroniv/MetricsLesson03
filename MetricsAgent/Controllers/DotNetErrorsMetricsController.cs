@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MetricsAgent.Converters;
+using MetricsAgent.Models;
+using MetricsAgent.Models.Requests;
+using MetricsAgent.Services;
+using MetricsAgent.Services.Impl;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MetricsAgent.Controllers
@@ -7,6 +12,35 @@ namespace MetricsAgent.Controllers
     [ApiController]
     public class DotNetErrorsMetricsController : ControllerBase
     {
+
+        #region Services
+
+        private readonly ILogger<DotNetErrorsMetricsController> _logger;
+        private readonly IDotNetErrorsMetricsRepository _dotNetErrorsMetricsRepository;
+
+        #endregion
+
+
+        public DotNetErrorsMetricsController(
+            IDotNetErrorsMetricsRepository DotNetErrorsMetricsRepository,
+            ILogger<DotNetErrorsMetricsController> logger)
+        {
+            _dotNetErrorsMetricsRepository = DotNetErrorsMetricsRepository;
+            _logger = logger;
+        }
+
+        [HttpPost("create")]
+        public IActionResult Create([FromBody] DotNetErrorsMetricCreateRequest request)
+        {
+            _dotNetErrorsMetricsRepository.Create(new Models.DotNetErrorsMetric
+            {
+                Value = request.Value,
+                Time = (int)request.Time.TotalSeconds
+            });
+            return Ok();
+        }
+
+
         /// <summary>
         /// Получить статистику по ошибкам в сети DOT.NET за период
         /// </summary>
@@ -14,10 +48,12 @@ namespace MetricsAgent.Controllers
         /// <param name="toTime">Время окончания периода</param>
         /// <returns></returns>
         [HttpGet("from/{fromTime}/to/{toTime}")]
-        public IActionResult GetDotNetErrorsMetrics(
+        public ActionResult<IList<DotNetErrorsMetric>> GetDotNetErrorsMetrics(
             [FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
         {
-            return Ok();
+
+            _logger.LogInformation("Get dotneterrors metrics call.");
+            return Ok(_dotNetErrorsMetricsRepository.GetByTimePeriod(fromTime, toTime));
         }
     }
 }

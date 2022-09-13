@@ -1,6 +1,6 @@
 ﻿namespace MetricsAgent.Models
 {
-    public class NetworkMetric
+    public class DotNetErrorsMetric
     {
         public int Id { get; set; }
         public int Value { get; set; }

@@ -11,14 +11,12 @@ namespace MetricsAgent.Controllers
     [ApiController]
     public class CpuMetricsController : ControllerBase
     {
+
         #region Services
 
         private readonly ILogger<CpuMetricsController> _logger;
         private readonly ICpuMetricsRepository _cpuMetricsRepository;
 
-        public CpuMetricsController()
-        {
-        }
         #endregion
 
 
