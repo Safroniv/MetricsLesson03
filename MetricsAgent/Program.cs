@@ -17,17 +17,25 @@ namespace MetricsAgent
 
             // Add services to the container.
 
-
+            /*                         
+            1. Добавьте логирование всех параметров в каждом из контроллеров в обоих проектах
+            2. Добавьте репозитории для каждого типа метрик в сервис агент сбора метрик
+            3. Добавьте обработчики в контроллеры в REST стиле для наполнения метриками базы данных
+            4. Добавьте тесты на все контроллеры и все методы с использованием заглушек
+             */
 
             #region Configure Repository
 
             builder.Services.AddScoped<ICpuMetricsRepository, CpuMetricsRepository>();
-
+            builder.Services.AddScoped<IDotNetErrorsMetricsRepository, DotNetErrorsMetricsRepository>();
+            builder.Services.AddScoped<IHddLeftMetricsRepository, HddLeftMetricsRepository>();
+            builder.Services.AddScoped<INetworkMetricsRepository, NetworkMetricsRepository>();
+            builder.Services.AddScoped<IRamAvailableMetricsRepository, RamAvailableMetricsRepository>();
             #endregion
 
             #region Configure Database
 
-            //ConfigureSqlLiteConnection(builder.Services);
+            ConfigureSqlLiteConnection(builder.Services);
 
             #endregion
 
@@ -84,7 +92,7 @@ namespace MetricsAgent
 
             app.MapControllers();
 
-           
+
 
             app.Run();
         }
@@ -104,10 +112,30 @@ namespace MetricsAgent
                 // Задаём новый текст команды для выполнения
                 // Удаляем таблицу с метриками, если она есть в базе данных
                 command.CommandText = "DROP TABLE IF EXISTS cpumetrics";
+                command.CommandText = "DROP TABLE IF EXISTS dotneterrorsmetrics";
+                command.CommandText = "DROP TABLE IF EXISTS hddleftmetrics";
+                command.CommandText = "DROP TABLE IF EXISTS networksmetrics";
+                command.CommandText = "DROP TABLE IF EXISTS ramavailablemetrics";
                 // Отправляем запрос в базу данных
                 command.ExecuteNonQuery();
                 command.CommandText =
                     @"CREATE TABLE cpumetrics(id INTEGER
+                    PRIMARY KEY,
+                    value INT, time INT)";
+                command.CommandText =
+                    @"CREATE TABLE dotneterrorsmetrics(id INTEGER
+                    PRIMARY KEY,
+                    value INT, time INT)";
+                command.CommandText =
+                    @"CREATE TABLE hddleftmetrics(id INTEGER
+                    PRIMARY KEY,
+                    value INT, time INT)";
+                command.CommandText =
+                    @"CREATE TABLE networksmetrics(id INTEGER
+                    PRIMARY KEY,
+                    value INT, time INT)";
+                command.CommandText =
+                    @"CREATE TABLE ramavailablemetrics(id INTEGER
                     PRIMARY KEY,
                     value INT, time INT)";
                 command.ExecuteNonQuery();

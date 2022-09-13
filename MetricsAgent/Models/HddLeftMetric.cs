@@ -1,6 +1,7 @@
 ﻿namespace MetricsAgent.Models
 {
-    public class NetworkMetric
+    public class HddLeftMetric
+
     {
         public int Id { get; set; }
         public int Value { get; set; }
